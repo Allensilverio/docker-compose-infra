@@ -1,13 +1,56 @@
 ---
-- hosts: all
-  become: yes
-  become_user: deploy
-  tasks:
-  - name: "Login to DockerHub"
-    command: "docker login -u {{ docker_username }} --password-stdin"
-    args:
-      stdin: "{{ docker_password }}"
+# deploy-playbook.yaml
 
-  - name: "Deploy apps"
-    command: "/home/deploy/deploy-{{ item }}.sh"
-    loop: "{{ apps }}"
+- name: Desplegar la aplicación Docker en Ubuntu
+  hosts: ids328l
+  become: true
+  vars:
+    app_image: "allensilverio/ids328l-final-project:v1.0"  # nombre de la imagen en dockerhub
+    app_container: "ids328l-final-project-web"  # nombre del contenedor
+    app_port: 3000
+
+  tasks:
+    - name: Generar archivo .env en el servidor
+      template:
+        src: "env.j2"
+        dest: "../nextjs-todo-list/.env.local"
+      become: true
+      
+    - name: Instalar Docker
+      apt:
+        name: docker.io
+        state: latest
+        update_cache: yes
+
+    - name: Iniciar el servicio Docker y habilitarlo en el arranque
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Iniciar sesión en Docker Hub
+      docker_login:
+        username: "{{ docker_username }}"
+        password: "{{ docker_password }}"
+      no_log: true
+
+    - name: Hacer pull de la imagen Docker desde Docker Hub
+      docker_image:
+        name: "{{ app_image }}"
+      become: true
+
+    - name: Detener y eliminar el contenedor anterior (si existe)
+      docker_container:
+        name: "{{ app_container }}"
+        state: absent
+      become: true
+
+    - name: Ejecutar la aplicación Docker en un contenedor
+      docker_container:
+        name: "{{ app_container }}"
+        image: "{{ app_image }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "{{ app_port }}:{{ app_port }}"
+      become: true
