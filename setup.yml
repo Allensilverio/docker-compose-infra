@@ -49,12 +49,28 @@
         name: docker
         state: started
 
-    - name: Pull a image form DockerHub
+    - name: Ensure /var/app/ directory exists
+      file:
+        path: /var/app/
+        state: directory
+        mode: '0755'
+
+    - name: Generate .env file on the server
+      template:
+        src: "./.env.j2"
+        dest: "/var/app/.env"
+      become: true
+
+    - name: Determine platform based on architecture
+      set_fact:
+        platform_type: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+    - name: Pull a Docker image from DockerHub based on architecture
       community.docker.docker_image:
-        name: allensilverioo/ids328l-cm-final-project:arm64-latest
+        name: allensilverioo/ids328l-cm-final-project:v1.0
         source: pull
         pull:
-          platform: arm64
+          platform: "{{ platform_type }}"
 
     - name: Run Docker container
       docker_container:
@@ -62,6 +78,9 @@
         image: "{{ docker_image_name }}"
         state: started
         restart_policy: always
+        env_file: /var/app/.env
+        ports:
+          - "3000:3000"
       vars:
-        docker_container_name: "test-container"  # Replace with your container name
-        docker_image_name: "allensilverioo/ids328l-cm-final-project:arm64-latest"  # Replace with your Docker image name and tag
+        docker_container_name: "test-container"  
+        docker_image_name: "allensilverioo/ids328l-cm-final-project:v1.0"
