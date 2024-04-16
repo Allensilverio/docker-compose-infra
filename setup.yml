@@ -1,6 +1,6 @@
 ---
 - name: Install Docker and run Docker container
-  hosts: all
+  hosts: qa
   become: yes
   tasks:
     - name: Check if Docker is installed
@@ -67,7 +67,7 @@
 
     - name: Pull a Docker image from DockerHub based on architecture
       community.docker.docker_image:
-        name: allensilverioo/ids328l-cm-final-project:v1.0
+        name: "{{docker_username}}/{{docker_image_name}}"
         source: pull
         pull:
           platform: "{{ platform_type }}"
@@ -75,12 +75,9 @@
     - name: Run Docker container
       docker_container:
         name: "{{ docker_container_name }}"
-        image: "{{ docker_image_name }}"
+        image: "{{docker_username}}/{{ docker_image_name }}"
         state: started
         restart_policy: always
         env_file: /var/app/.env
         ports:
           - "3000:3000"
-      vars:
-        docker_container_name: "test-container"  
-        docker_image_name: "allensilverioo/ids328l-cm-final-project:v1.0"
