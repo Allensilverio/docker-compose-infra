@@ -1,6 +1,7 @@
 {
     "yaml.schemas": {
         "file:///Users/Allensilverioo/.vscode/extensions/atlassian.atlascode-3.0.10/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
-        "https://json.schemastore.org/eslintrc.json": "file:///Users/Allensilverioo/Desktop/Proyecto%20Final%20Administracion%20Configuracion/docker-compose-infra/hosts.yml"
+        "https://json.schemastore.org/eslintrc.json": "file:///Users/Allensilverioo/Desktop/Proyecto%20Final%20Administracion%20Configuracion/docker-compose-infra/hosts.yml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/inventory.json": "file:///Users/Allensilverioo/Desktop/Proyecto_Final_Administracion_Configuracion/docker-compose-infra/inventory.yml"
     }
 }
